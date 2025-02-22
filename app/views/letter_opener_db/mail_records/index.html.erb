@@ -1,0 +1,217 @@
+<style>
+  /* Overall layout */
+  body {
+    font-family: sans-serif;
+    margin: 20px;
+    background-color: #f8f8f8;
+  }
+
+  .lo-db-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 16px;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  h1 {
+    margin-bottom: 16px;
+    color: #333;
+  }
+
+  /* Search form area */
+  .lo-db-search-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .lo-db-search-form {
+    display: inline-flex;
+    align-items: center;
+  }
+  .lo-db-search-form input[type="text"] {
+    padding: 6px 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 6px;
+  }
+  .lo-db-search-form select {
+    margin-left: 6px;
+    padding: 4px 6px;
+    font-size: 14px;
+  }
+  .lo-db-search-form input[type="submit"] {
+    margin-left: 6px;
+    padding: 6px 12px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    background-color: #333;
+    color: #fff;
+    cursor: pointer;
+  }
+  .lo-db-search-form input[type="submit"]:hover {
+    background-color: #555;
+  }
+
+  .lo-db-total-count {
+    font-size: 14px;
+  }
+
+  /* Table */
+  table.lo-db-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  table.lo-db-table thead {
+    background-color: #f3f3f3;
+  }
+  table.lo-db-table th,
+  table.lo-db-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    vertical-align: middle;
+  }
+  table.lo-db-table th {
+    font-weight: bold;
+    color: #333;
+  }
+  table.lo-db-table tbody tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+  table.lo-db-table a {
+    color: #0066cc;
+    text-decoration: none;
+  }
+  table.lo-db-table a:hover {
+    text-decoration: underline;
+  }
+
+  /* Pagination */
+  .lo-db-pagination {
+    margin-top: 36px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .lo-db-pagination .page-info {
+    font-weight: bold;
+    margin: 0 4px;
+  }
+  .lo-db-pagination a {
+    color: #0066cc;
+    text-decoration: none;
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #f9f9f9;
+  }
+  .lo-db-pagination a:hover {
+    background-color: #ddd;
+  }
+  .lo-db-pagination .disabled-link {
+    color: #999;
+    border-color: #eee;
+    background-color: #fafafa;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+</style>
+
+<div class="lo-db-container">
+  <h1>Letter Opener DB</h1>
+
+  <!-- Search row -->
+  <div class="lo-db-search-row">
+    <!-- Search form -->
+    <%= form_with url: mail_records_path, method: :get, local: true, class: "lo-db-search-form" do |f| %>
+      <!-- Keyword -->
+      <%= f.text_field :q, value: params[:q] %>
+
+      <!-- Sort by date: asc or desc -->
+      <label for="sort_select" style="margin-left: 8px;">Sort by date</label>
+      <%= f.select :sort, [["Newest first", "desc"], ["Oldest first", "asc"]],
+                   { selected: params[:sort] || "desc" },
+                   { id: "sort_select" } %>
+
+      <!-- Per page selection -->
+      <label for="per_input" style="margin-left: 8px;">Per Page</label>
+      <%= f.select :per, [10, 25, 50, 100].map {|n| [n, n]}, { selected: @per }, { id: "per_input" } %>
+
+      <%= f.submit "Search" %>
+    <% end %>
+
+    <!-- Total record count -->
+    <div class="lo-db-total-count">
+      Total: <%= @total_count %> mails
+    </div>
+  </div>
+
+  <!-- Table of mail records -->
+  <table class="lo-db-table">
+    <thead>
+      <tr>
+        <th>Subject</th>
+        <th>To</th>
+        <th>From</th>
+        <th>Sent At</th>
+        <th>Body Preview</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @mail_records.each do |record| %>
+        <tr>
+          <td>
+            <%= link_to record.subject,
+                        mail_record_path(record,
+                          sort: params[:sort],
+                          per: @per,
+                          q: params[:q],
+                          page: @page
+                        ) %>
+          </td>
+          <td><%= record.to %></td>
+          <td><%= record.from %></td>
+          <td><%= record.sent_at.strftime("%Y-%m-%d %H:%M:%S") %></td>
+          <td><%= record.body_preview %>...</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <!-- Pagination: Prev / Next -->
+  <div class="lo-db-pagination">
+    <% total_pages = (@total_count.to_f / @per).ceil %>
+
+    <% prev_page = @page - 1 %>
+    <% next_page = @page + 1 %>
+
+    <!-- Prev link -->
+    <% if @page > 1 %>
+      <%= link_to "Prev",
+                  mail_records_path(page: prev_page, per: @per, sort: params[:sort], q: params[:q]) %>
+    <% else %>
+      <a class="disabled-link">Prev</a>
+    <% end %>
+
+    <!-- Page info: "Page X / Y" -->
+    <span class="page-info">
+      Page <%= @page %> / <%= total_pages %>
+    </span>
+
+    <!-- Next link -->
+    <% if @page < total_pages %>
+      <%= link_to "Next",
+                  mail_records_path(page: next_page, per: @per, sort: params[:sort], q: params[:q]) %>
+    <% else %>
+      <a class="disabled-link">Next</a>
+    <% end %>
+  </div>
+</div>

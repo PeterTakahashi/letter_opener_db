@@ -1,0 +1,102 @@
+<style>
+  body {
+    font-family: sans-serif;
+    margin: 20px;
+    background-color: #f8f8f8;
+  }
+
+  .lo-db-show-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 16px;
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: relative;
+  }
+
+  .lo-db-show-container h1 {
+    margin-top: 0;
+    color: #333;
+  }
+
+  .lo-db-meta p {
+    margin: 0 0 5px;
+  }
+
+  .lo-db-part {
+    margin-bottom: 16px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #fafafa;
+    border-radius: 4px;
+  }
+
+  .lo-db-part h2 {
+    margin-top: 0;
+  }
+
+  .lo-db-delete-form {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+
+  .lo-db-delete-button {
+    padding: 6px 12px;
+    background-color: #c00;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .lo-db-delete-button:hover {
+    background-color: #a00;
+  }
+
+  .lo-db-back-link {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 6px 12px;
+    background-color: #333;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+  }
+  .lo-db-back-link:hover {
+    background-color: #555;
+  }
+</style>
+
+<div class="lo-db-show-container">
+  <%= form_with url: mail_record_path(@mail_record), method: :delete, local: true, class: "lo-db-delete-form" do %>
+    <%= button_tag "Delete",
+      class: "lo-db-delete-button" %>
+  <% end %>
+
+  <h1><%= @mail_record.subject %></h1>
+
+  <div class="lo-db-meta">
+    <p><strong>To:</strong> <%= @mail_record.to %></p>
+    <p><strong>From:</strong> <%= @mail_record.from %></p>
+    <p><strong>Sent At:</strong> <%= @mail_record.sent_at %></p>
+  </div>
+
+  <hr />
+
+  <% if @mail_record.html_part.present? %>
+    <div class="lo-db-part">
+      <h2>HTML Part</h2>
+      <%= raw @mail_record.body_html %>
+    </div>
+  <% end %>
+
+  <% if @mail_record.text_part.present? %>
+    <div class="lo-db-part">
+      <h2>Text Part</h2>
+      <pre><%= @mail_record.body_text %></pre>
+    </div>
+  <% end %>
+
+  <%= link_to "Back", mail_records_path, class: "lo-db-back-link" %>
+</div>
