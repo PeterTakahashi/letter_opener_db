@@ -15,6 +15,14 @@
 - **件名や本文等の検索**
 - **マルチサーバー環境でも一括管理** して全メールを閲覧
 
+## スクリーンショット (Screenshot)
+
+mail_records index
+![index](docs/img/index.png)
+
+mail_records show
+![show](docs/img/show.png)
+
 ## 特徴 (Features)
 
 - **データベース保存**  

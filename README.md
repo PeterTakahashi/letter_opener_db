@@ -25,6 +25,14 @@ To address these issues, **LetterOpenerDb** saves the emails in a database, enab
 - **Rails Engine**  
   Includes models, controllers, and views for quick installation and easy maintenance.
 
+## Screenshot
+
+mail_records index
+![index](docs/img/index.png)
+
+mail_records show
+![show](docs/img/show.png)
+
 ## Installation
 
 Add this line to your application's Gemfile, pointing to your Git repository (private or public) or a local path:
